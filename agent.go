@@ -10,6 +10,7 @@ const (
 	HUMAN playerType = iota
 	RANDOM
 	UCI
+	CPU
 )
 
 type AgentPlayer interface {

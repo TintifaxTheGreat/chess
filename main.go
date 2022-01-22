@@ -16,7 +16,7 @@ func main() {
 	win := chessApp.NewWindow("Chess")
 	ui := newUI(win)
 	game := NewGame()
-	game.InitGame([2]playerType{HUMAN, engine}, ui)
+	game.InitGame([2]playerType{HUMAN, CPU}, ui)
 	win.SetContent(game.ui.makeUI(game))
 	win.Resize(fyne.NewSize(480, 480+theme.IconInlineSize()*2+theme.Padding()))
 	win.SetMainMenu(fyne.NewMainMenu(

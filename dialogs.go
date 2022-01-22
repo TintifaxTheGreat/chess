@@ -10,13 +10,13 @@ import (
 
 func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack playerType)) {
 	var playerWhite playerType = HUMAN
-	var playerBlack playerType = engine
+	var playerBlack playerType = CPU
 
 	chooseWhite := &widget.RadioGroup{
 		Options: []string{"Engine", "Human"},
 		OnChanged: func(s string) {
 			if s == "Engine" {
-				playerWhite = engine
+				playerWhite = CPU
 			} else {
 				playerWhite = HUMAN
 			}
@@ -29,7 +29,7 @@ func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack play
 		Options: []string{"Engine", "Human"},
 		OnChanged: func(s string) {
 			if s == "Engine" {
-				playerBlack = engine
+				playerBlack = CPU
 			} else {
 				playerBlack = HUMAN
 			}

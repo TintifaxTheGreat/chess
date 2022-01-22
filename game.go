@@ -44,6 +44,8 @@ func (g *game) InitGame(agents [2]playerType, ui *ui) {
 			players[color] = NewAgentRandom()
 		case UCI:
 			players[color] = NewAgentUCI(100)
+		case CPU:
+			players[color] = NewAgentCPU()
 		}
 	}
 
@@ -73,6 +75,8 @@ func (g *game) loadGame(s string, ui *ui) {
 			players[color] = NewAgentRandom()
 		case UCI:
 			players[color] = NewAgentUCI(100)
+		case CPU:
+			players[color] = NewAgentCPU()
 		}
 	}
 	g.gameId = gSerial.Id
@@ -113,7 +117,6 @@ func (g *game) Play() {
 				if color == 0 && g.cgame.Position().Turn() == chess.Black {
 					continue
 				}
-
 				m := g.agents[color].MakeMove(g.cgame)
 
 				move1(m, g.cgame, g.ui, g.playerTypes[color] != HUMAN)
