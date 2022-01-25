@@ -33,7 +33,7 @@ func main() {
 	))
 
 	cur := fyne.CurrentApp().Preferences().String(PREFERENCE_KEY_CURRENT)
-	game.loadGame(cur, ui)
+	game.loadGameFromPreferences(cur, ui)
 	game.ui.refreshGrid(game.cgame)
 	game.Play()
 	win.ShowAndRun()

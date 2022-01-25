@@ -13,11 +13,16 @@ const MIN_INT int = -32768
 
 const CENTER uint64 = 0x00003C3C3C3C0000
 
-type AgentCPU Agent
+type AgentCPU struct {
+	Agent
+	depth int
+}
 
 func NewAgentCPU() *AgentCPU {
 	rand.Seed(time.Now().Unix())
-	return &AgentCPU{}
+	return &AgentCPU{
+		depth: 4,
+	}
 }
 
 func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
@@ -30,7 +35,7 @@ func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 	var newPos *chess.Position
 	for i, move := range moves {
 		newPos = pos.Update(move)
-		if value := -negamax(newPos, 4, MIN_INT, MAX_INT); value > maxValue {
+		if value := -negamax(newPos, a.depth, MIN_INT, MAX_INT); value > maxValue {
 			maxValue = value
 			maxIndex = i
 		}

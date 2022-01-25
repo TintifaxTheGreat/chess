@@ -61,7 +61,7 @@ func (g *game) InitGame(agents [2]playerType, ui *ui) {
 	_ = g.ui.outcome.Set(string(chess.NoOutcome))
 }
 
-func (g *game) loadGame(s string, ui *ui) {
+func (g *game) loadGameFromPreferences(s string, ui *ui) {
 	bytes := []byte(s)
 	var gSerial gameSerial
 	json.Unmarshal(bytes, &gSerial)
