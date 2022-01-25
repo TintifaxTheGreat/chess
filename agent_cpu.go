@@ -30,7 +30,7 @@ func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 	var newPos *chess.Position
 	for i, move := range moves {
 		newPos = pos.Update(move)
-		if value := -negamax(newPos, 3); value > maxValue {
+		if value := -negamax(newPos, 4, MIN_INT, MAX_INT); value > maxValue {
 			maxValue = value
 			maxIndex = i
 		}

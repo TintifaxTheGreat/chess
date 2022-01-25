@@ -69,14 +69,12 @@ func evaluate(pos *chess.Position) int {
 	return value
 }
 
-func negamax(pos *chess.Position, depth int) int {
+func negamax(pos *chess.Position, depth int, alpha int, beta int) int {
 	// TODO consider terminal positions
 	if depth < 1 {
 		foo := evaluate(pos) //TODO remove this
 		return foo
 	}
-	maxValue := MIN_INT
-
 	var newPos *chess.Position
 
 	children := pos.ValidMoves()
@@ -85,10 +83,13 @@ func negamax(pos *chess.Position, depth int) int {
 	}
 	for _, child := range children {
 		newPos = pos.Update(child)
-		value := -negamax(newPos, depth-1)
-		if value > maxValue {
-			maxValue = value
+		value := -negamax(newPos, depth-1, -beta, -alpha)
+		if value >= beta {
+			return beta
+		}
+		if value > alpha {
+			alpha = value
 		}
 	}
-	return maxValue
+	return alpha
 }
