@@ -9,7 +9,7 @@ import (
 )
 
 func evaluate(pos *chess.Position) int {
-	// evaluation takes places from the perspective of the white player
+	// evaluation takes places from the perspective of the player who's turn it is
 	// TODO consider terminal positions
 
 	/*outcome := game.Outcome()
@@ -44,44 +44,49 @@ func evaluate(pos *chess.Position) int {
 	whitePawnsCenter := bbWhitePawn & CENTER
 	blackPawnsCenter := bbBlackPawn & CENTER
 
-	value += bits.OnesCount64(whitePawnsCenter)
-	value -= bits.OnesCount64(blackPawnsCenter)
+	value = value + bits.OnesCount64(whitePawnsCenter)
+	value = value - bits.OnesCount64(blackPawnsCenter)
 
-	value += bits.OnesCount64(bbWhitePawn) * 10
-	value -= bits.OnesCount64(bbBlackPawn) * 10
+	value = value + bits.OnesCount64(bbWhitePawn)*10
+	value = value - bits.OnesCount64(bbBlackPawn)*10
 
-	value += bits.OnesCount64(bbWhiteKnight) * 30
-	value -= bits.OnesCount64(bbBlackKnight) * 30
+	value = value + bits.OnesCount64(bbWhiteKnight)*30
+	value = value - bits.OnesCount64(bbBlackKnight)*30
 
-	value += bits.OnesCount64(bbWhiteBishop) * 30
-	value -= bits.OnesCount64(bbBlackBishop) * 30
+	value = value + bits.OnesCount64(bbWhiteBishop)*30
+	value = value - bits.OnesCount64(bbBlackBishop)*30
 
-	value += bits.OnesCount64(bbWhiteRook) * 50
-	value -= bits.OnesCount64(bbBlackRook) * 50
+	value = value + bits.OnesCount64(bbWhiteRook)*50
+	value = value - bits.OnesCount64(bbBlackRook)*50
 
-	value += bits.OnesCount64(bbWhiteQueen) * 90
-	value -= bits.OnesCount64(bbBlackQueen) * 90
+	value = value + bits.OnesCount64(bbWhiteQueen)*90
+	value = value - bits.OnesCount64(bbBlackQueen)*90
+
+	if pos.Turn() == chess.Black {
+		value *= (-1)
+	}
 
 	return value
 }
 
 func negamax(pos *chess.Position, depth int) int {
-	color := 1
-	if pos.Turn() == chess.White {
-		color = -1
-	}
 	// TODO consider terminal positions
-	if depth == 0 {
-		return color * evaluate(pos)
+	if depth < 1 {
+		foo := evaluate(pos) //TODO remove this
+		return foo
 	}
 	maxValue := MIN_INT
 
 	var newPos *chess.Position
 
 	children := pos.ValidMoves()
+	if depth == 2 {
+		//log.Print(children)
+	}
 	for _, child := range children {
 		newPos = pos.Update(child)
-		if value := (-1) * negamax(newPos, depth-1); value > maxValue {
+		value := -negamax(newPos, depth-1)
+		if value > maxValue {
 			maxValue = value
 		}
 	}

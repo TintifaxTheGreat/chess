@@ -51,6 +51,7 @@ func (g *game) InitGame(agents [2]playerType, ui *ui) {
 
 	g.gameId = uuid.New()
 	g.cgame = chess.NewGame()
+
 	g.playerTypes = agents
 	g.agents = players
 	g.ui = ui
