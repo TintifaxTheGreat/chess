@@ -4,7 +4,6 @@ package main
 
 import (
 	"github.com/notnil/chess"
-	"log"
 	"math/rand"
 	"time"
 )
@@ -26,12 +25,12 @@ func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 	//TODO consider outcome here
 	maxValue := MIN_INT
 	maxIndex := MIN_INT
-	//values := make([]int, len(moves))
+
 	pos := game.Position()
 	var newPos *chess.Position
 	for i, move := range moves {
 		newPos = pos.Update(move)
-		if value := -negamax(newPos, 2); value > maxValue {
+		if value := -negamax(newPos, 3); value > maxValue {
 			maxValue = value
 			maxIndex = i
 		}
@@ -39,10 +38,7 @@ func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 	if maxIndex == MIN_INT {
 		return nil //TODO remove this
 	}
-	log.Print("+++++++++++++++")
-	log.Print(maxValue)
-	log.Print(maxIndex)
-	log.Print("+++++++++++++++")
+
 	return moves[maxIndex]
 }
 
