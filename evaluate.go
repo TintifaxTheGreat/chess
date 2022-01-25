@@ -10,21 +10,6 @@ import (
 
 func evaluate(pos *chess.Position) int {
 	// evaluation takes places from the perspective of the player who's turn it is
-	// TODO consider terminal positions
-
-	/*outcome := game.Outcome()
-	if outcome != chess.NoOutcome {
-		switch outcome {
-		case chess.WhiteWon:
-			return MAX_INT
-		case chess.BlackWon:
-			return MIN_INT
-		default:
-			return 0
-		}
-	}
-
-	*/
 	var value int = 0
 	data, _ := pos.Board().MarshalBinary() //TODO make this more efficient
 
@@ -70,17 +55,28 @@ func evaluate(pos *chess.Position) int {
 }
 
 func negamax(pos *chess.Position, depth int, alpha int, beta int) int {
-	// TODO consider terminal positions
+	//TODO move ordering
+	outcome := pos.Status()
+	if outcome != chess.NoMethod {
+		switch outcome {
+		case chess.Checkmate:
+			alpha = 20000 + depth
+		default:
+			return 0
+		}
+		if pos.Turn() == chess.Black {
+			alpha *= (-1)
+		}
+		return alpha
+	}
+
 	if depth < 1 {
-		foo := evaluate(pos) //TODO remove this
-		return foo
+		return evaluate(pos)
 	}
 	var newPos *chess.Position
 
 	children := pos.ValidMoves()
-	if depth == 2 {
-		//log.Print(children)
-	}
+
 	for _, child := range children {
 		newPos = pos.Update(child)
 		value := -negamax(newPos, depth-1, -beta, -alpha)

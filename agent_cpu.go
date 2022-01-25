@@ -22,7 +22,7 @@ func NewAgentCPU() *AgentCPU {
 
 func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 	moves := game.ValidMoves()
-	//TODO consider outcome here
+
 	maxValue := MIN_INT
 	maxIndex := MIN_INT
 
@@ -35,6 +35,7 @@ func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 			maxIndex = i
 		}
 	}
+
 	if maxIndex == MIN_INT {
 		return nil //TODO remove this
 	}
