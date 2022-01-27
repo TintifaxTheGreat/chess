@@ -55,7 +55,6 @@ func evaluate(pos *chess.Position) int {
 }
 
 func negamax(pos *chess.Position, depth int, alpha int, beta int) int {
-	//TODO move ordering
 	outcome := pos.Status()
 	if outcome != chess.NoMethod {
 		switch outcome {
