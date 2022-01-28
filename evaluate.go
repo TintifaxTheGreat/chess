@@ -59,12 +59,9 @@ func negamax(pos *chess.Position, depth int, alpha int, beta int) int {
 	if outcome != chess.NoMethod {
 		switch outcome {
 		case chess.Checkmate:
-			alpha = 20000 + depth
+			alpha = -20000 - depth
 		default:
 			return 0
-		}
-		if pos.Turn() == chess.Black {
-			alpha *= (-1)
 		}
 		return alpha
 	}

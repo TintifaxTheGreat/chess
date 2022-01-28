@@ -49,12 +49,10 @@ func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 	for i, move := range keys {
 		newPos = pos.Update(move) //TODO use cached position from above
 		value := -negamax(newPos, a.depth, -beta, -alpha)
-
 		if value >= beta {
 			index = i
 			break
 		}
-
 		if value > alpha {
 			alpha = value
 			index = i
