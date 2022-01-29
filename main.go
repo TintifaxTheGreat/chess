@@ -6,17 +6,18 @@ import (
 	"fyne.io/fyne/v2/theme"
 )
 
-var engine playerType = RANDOM
+var engine playerType = CPU
 
 func main() {
 	if checkEngine() {
-		engine = UCI
+		engine = CPU // TODO change this later
+		//engine = UCI
 	}
 	chessApp := app.NewWithID("xyz.andy.chess")
 	win := chessApp.NewWindow("Chess")
 	ui := newUI(win)
 	game := NewGame()
-	game.InitGame([2]playerType{HUMAN, CPU}, ui)
+	game.InitGame([2]playerType{HUMAN, engine}, ui, "")
 	win.SetContent(game.ui.makeUI(game))
 	win.Resize(fyne.NewSize(480, 480+theme.IconInlineSize()*2+theme.Padding()))
 	win.SetMainMenu(fyne.NewMainMenu(
@@ -24,12 +25,22 @@ func main() {
 			fyne.NewMenuItem("New Game", func() {
 				dialogNewGame(&win, func(playerWhite, playerBlack playerType) {
 					game.Stop()
-					game.InitGame([2]playerType{playerWhite, playerBlack}, ui)
+					game.InitGame([2]playerType{playerWhite, playerBlack}, ui, "")
 					chessApp.Preferences().SetString(PREFERENCE_KEY_CURRENT, game.marshall())
 					game.ui.refreshGrid(game.cgame)
 					game.Play()
 				})
-			})),
+			}),
+			fyne.NewMenuItem("Load FEN", func() {
+				dialogLoadGameFEN(&win, func(playerWhite, playerBlack playerType, FEN string) {
+					game.Stop()
+					game.InitGame([2]playerType{playerWhite, playerBlack}, ui, FEN)
+					chessApp.Preferences().SetString(PREFERENCE_KEY_CURRENT, game.marshall())
+					game.ui.refreshGrid(game.cgame)
+					game.Play()
+				})
+			}),
+		),
 	))
 
 	cur := fyne.CurrentApp().Preferences().String(PREFERENCE_KEY_CURRENT)

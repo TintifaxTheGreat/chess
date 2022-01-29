@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"github.com/google/uuid"
 	"github.com/notnil/chess"
+	"log"
 )
 
 type playerType int8
@@ -33,7 +34,7 @@ func NewGame() *game {
 	}
 }
 
-func (g *game) InitGame(agents [2]playerType, ui *ui) {
+func (g *game) InitGame(agents [2]playerType, ui *ui, fen string) {
 	var players [2]AgentPlayer
 
 	for color := 0; color < 2; color++ {
@@ -57,49 +58,34 @@ func (g *game) InitGame(agents [2]playerType, ui *ui) {
 	g.ui = ui
 	g.playing = true
 
-	_ = g.ui.blackTurn.Set(false)
-	_ = g.ui.outcome.Set(string(chess.NoOutcome))
+	if fen == "" {
+		_ = g.ui.blackTurn.Set(false)
+		_ = g.ui.outcome.Set(string(chess.NoOutcome))
+	} else {
+		load, err := chess.FEN(fen)
+		if err != nil {
+			return
+		}
+		load(g.cgame)
+		_ = g.ui.blackTurn.Set(g.cgame.Position().Turn() != chess.White)
+		_ = g.ui.outcome.Set(string(g.cgame.Outcome()))
+	}
 }
 
 func (g *game) loadGameFromPreferences(s string, ui *ui) {
+	log.Print(s)
 	bytes := []byte(s)
 	var gSerial gameSerial
 	json.Unmarshal(bytes, &gSerial)
 	agents := [2]playerType{gSerial.PlayerWhite, gSerial.PlayerBlack}
-	var players [2]AgentPlayer
-
-	for color := 0; color < 2; color++ {
-		switch agents[color] {
-		case HUMAN:
-			players[color] = NewAgentHuman(color == 0)
-		case RANDOM:
-			players[color] = NewAgentRandom()
-		case UCI:
-			players[color] = NewAgentUCI(100)
-		case CPU:
-			players[color] = NewAgentCPU()
-		}
-	}
 	g.gameId = gSerial.Id
-	load, err := chess.FEN(gSerial.FEN)
-	if err != nil {
-		return
-	}
-	load(g.cgame)
-
-	g.playerTypes = agents
-	g.agents = players
-	g.ui = ui
-	g.playing = true
-
-	_ = g.ui.blackTurn.Set(g.cgame.Position().Turn() != chess.White)
-	_ = g.ui.outcome.Set(string(g.cgame.Outcome()))
+	g.InitGame(agents, ui, gSerial.FEN)
 }
 
 func (g *game) marshall() string {
 	gameSerial := &gameSerial{
 		PlayerWhite: g.playerTypes[0],
-		PlayerBlack: g.playerTypes[0],
+		PlayerBlack: g.playerTypes[1],
 		Id:          g.gameId,
 		FEN:         g.cgame.FEN(),
 	}

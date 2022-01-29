@@ -13,6 +13,13 @@ const MAX_INT int = 32767
 const MIN_INT int = -32768
 
 const CENTER uint64 = 0x00003C3C3C3C0000
+const BORD_0 uint64 = 0xff818181818181ff
+const BORD_1 uint64 = 0x007e424242427e00
+const CENT_1 uint64 = 0x00003c24243c0000
+const CENT_0 uint64 = 0x0000001818000000
+const SAFE_KING uint64 = 0xc3000000000000c3
+const GOOD_BISHOP uint64 = 0x42006666004200
+const BASE_LINE uint64 = 0xff000000000000ff
 
 type AgentCPU struct {
 	Agent
@@ -28,18 +35,17 @@ func NewAgentCPU() *AgentCPU {
 
 func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 	moves := game.ValidMoves()
-
 	alpha := MIN_INT
 	beta := MAX_INT
 	index := MIN_INT
 
-	pos := game.Position()
-	var newPos *chess.Position
-	var priorValues = make(map[*chess.Move]int)
+	priorValues := make(map[*chess.Move]int)
+	newPositions := make(map[*chess.Move]*chess.Position)
 	for _, move := range moves {
-		newPos = pos.Update(move)
-		priorValues[move] = -evaluate(newPos)
+		newPositions[move] = game.Position().Update(move)
+		priorValues[move] = -evaluate(newPositions[move])
 	}
+
 	keys := make([]*chess.Move, 0, len(priorValues))
 	for key := range priorValues {
 		keys = append(keys, key)
@@ -47,8 +53,7 @@ func (a *AgentCPU) MakeMove(game *chess.Game) *chess.Move {
 	sort.Slice(keys, func(i, j int) bool { return priorValues[keys[i]] > priorValues[keys[j]] })
 
 	for i, move := range keys {
-		newPos = pos.Update(move) //TODO use cached position from above
-		value := -negamax(newPos, a.depth, -beta, -alpha)
+		value := -negamax(newPositions[move], a.depth, -beta, -alpha)
 		if value >= beta {
 			index = i
 			break

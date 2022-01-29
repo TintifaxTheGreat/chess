@@ -48,5 +48,53 @@ func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack play
 			f(playerWhite, playerBlack)
 		}
 	}, *mainWindow)
+}
 
+func dialogLoadGameFEN(mainWindow *fyne.Window, f func(playerWhite, playerBlack playerType, FEN string)) {
+	var playerWhite playerType = HUMAN
+	var playerBlack playerType = engine
+	var FEN string
+
+	insertFEN := &widget.Entry{
+		OnChanged: func(s string) { FEN = s },
+		Wrapping:  fyne.TextTruncate,
+	}
+
+	chooseWhite := &widget.RadioGroup{
+		Options: []string{"Engine", "Human"},
+		OnChanged: func(s string) {
+			if s == "Engine" {
+				playerWhite = engine
+			} else {
+				playerWhite = HUMAN
+			}
+		},
+		Horizontal: true,
+		Selected:   "Human",
+	}
+
+	chooseBlack := &widget.RadioGroup{
+		Options: []string{"Engine", "Human"},
+		OnChanged: func(s string) {
+			if s == "Engine" {
+				playerBlack = engine
+			} else {
+				playerBlack = HUMAN
+			}
+		},
+		Horizontal: true,
+		Selected:   "Engine",
+	}
+
+	items := []*widget.FormItem{
+		widget.NewFormItem("Enter FEN: ", insertFEN),
+		widget.NewFormItem("Player White: ", chooseWhite),
+		widget.NewFormItem("Player Black: ", chooseBlack),
+	}
+
+	dialog.ShowForm("Load Game from FEN", "Load Game", "Cancel", items, func(ok bool) {
+		if ok {
+			f(playerWhite, playerBlack, FEN)
+		}
+	}, *mainWindow)
 }
