@@ -11,7 +11,7 @@ func TestMakeMove(t *testing.T) {
 	game := chess.NewGame()
 
 	agent.depth = 4
-	load, err := chess.FEN("r6B/1p5p/3p2pK/1N5P/1p3P2/3p4/1R2p3/kB1b3Q w - - 0 1")
+	load, err := chess.FEN("r6B/1p5p/3p2pK/1N5P/1p3P2/3p4/1R2p3/kB1b3Q w - - 0 1") //TODO check of correct
 	if err != nil {
 		return
 	}

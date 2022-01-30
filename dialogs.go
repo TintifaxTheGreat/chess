@@ -9,7 +9,7 @@ import (
 )
 
 func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack playerType)) {
-	var playerWhite playerType = HUMAN
+	var playerWhite playerType = UCI
 	var playerBlack playerType = CPU
 
 	chooseWhite := &widget.RadioGroup{
@@ -18,7 +18,7 @@ func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack play
 			if s == "Engine" {
 				playerWhite = CPU
 			} else {
-				playerWhite = HUMAN
+				playerWhite = UCI
 			}
 		},
 		Horizontal: true,
@@ -31,7 +31,7 @@ func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack play
 			if s == "Engine" {
 				playerBlack = CPU
 			} else {
-				playerBlack = HUMAN
+				playerBlack = UCI
 			}
 		},
 		Horizontal: true,
@@ -51,8 +51,8 @@ func dialogNewGame(mainWindow *fyne.Window, f func(playerWhite, playerBlack play
 }
 
 func dialogLoadGameFEN(mainWindow *fyne.Window, f func(playerWhite, playerBlack playerType, FEN string)) {
-	var playerWhite playerType = HUMAN
-	var playerBlack playerType = engine
+	var playerWhite playerType = UCI
+	var playerBlack playerType = CPU
 	var FEN string
 
 	insertFEN := &widget.Entry{
@@ -64,9 +64,9 @@ func dialogLoadGameFEN(mainWindow *fyne.Window, f func(playerWhite, playerBlack 
 		Options: []string{"Engine", "Human"},
 		OnChanged: func(s string) {
 			if s == "Engine" {
-				playerWhite = engine
+				playerWhite = CPU
 			} else {
-				playerWhite = HUMAN
+				playerWhite = UCI
 			}
 		},
 		Horizontal: true,
@@ -77,9 +77,9 @@ func dialogLoadGameFEN(mainWindow *fyne.Window, f func(playerWhite, playerBlack 
 		Options: []string{"Engine", "Human"},
 		OnChanged: func(s string) {
 			if s == "Engine" {
-				playerBlack = engine
+				playerBlack = CPU
 			} else {
-				playerBlack = HUMAN
+				playerBlack = UCI
 			}
 		},
 		Horizontal: true,

@@ -8,8 +8,16 @@ import (
 	"math/bits"
 )
 
+const CENTER uint64 = 0x00003C3C3C3C0000
+const BORD_0 uint64 = 0xff818181818181ff
+const BORD_1 uint64 = 0x007e424242427e00
+const CENT_1 uint64 = 0x00003c24243c0000
+const CENT_0 uint64 = 0x0000001818000000
+const SAFE_KING uint64 = 0xc3000000000000c3
+const GOOD_BISHOP uint64 = 0x42006666004200
+const BASE_LINE uint64 = 0xff000000000000ff
+
 func evaluate(pos *chess.Position) int {
-	// evaluation takes places from the perspective of the player who's turn it is
 	var value int = 0
 	data, _ := pos.Board().MarshalBinary() //TODO make this more efficient
 
@@ -26,47 +34,44 @@ func evaluate(pos *chess.Position) int {
 	bbBlackKnight := uint64(binary.BigEndian.Uint64(data[80:88]))
 	bbBlackPawn := uint64(binary.BigEndian.Uint64(data[88:96]))
 
-	whitePawnsCenter := bbWhitePawn & CENTER
-	blackPawnsCenter := bbBlackPawn & CENTER
+	value += bits.OnesCount64(bbWhitePawn&CENT_0) * 4
+	value -= bits.OnesCount64(bbBlackPawn&CENT_0) * 4
 
-	value = value + bits.OnesCount64(whitePawnsCenter)
-	value = value - bits.OnesCount64(blackPawnsCenter)
+	value += bits.OnesCount64(bbWhitePawn&CENT_1) * 2
+	value -= bits.OnesCount64(bbBlackPawn&CENT_1) * 2
 
-	value = value + bits.OnesCount64(bbWhitePawn)*20
-	value = value - bits.OnesCount64(bbBlackPawn)*20
+	value += bits.OnesCount64(bbWhitePawn) * 20
+	value -= bits.OnesCount64(bbBlackPawn) * 20
 
-	value = value + bits.OnesCount64(bbWhiteKnight)*60
-	value = value - bits.OnesCount64(bbBlackKnight)*60
+	value += bits.OnesCount64(bbWhiteKnight) * 60
+	value -= bits.OnesCount64(bbBlackKnight) * 60
 
-	value = value + bits.OnesCount64(bbWhiteBishop)*61
-	value = value - bits.OnesCount64(bbBlackBishop)*61
+	value += bits.OnesCount64(bbWhiteBishop) * 61
+	value -= bits.OnesCount64(bbBlackBishop) * 61
 
-	value = value + bits.OnesCount64(bbWhiteRook)*100
-	value = value - bits.OnesCount64(bbBlackRook)*100
+	value += bits.OnesCount64(bbWhiteRook) * 100
+	value -= bits.OnesCount64(bbBlackRook) * 100
 
-	value = value + bits.OnesCount64(bbWhiteQueen)*180
-	value = value - bits.OnesCount64(bbBlackQueen)*180
+	value += bits.OnesCount64(bbWhiteQueen) * 180
+	value -= bits.OnesCount64(bbBlackQueen) * 180
 
 	// TODO only use in early stage of game
-	value = value + bits.OnesCount64(bbWhiteKnight&CENTER)
-	value = value - bits.OnesCount64(bbBlackKnight&CENTER)
+	value += bits.OnesCount64(bbWhiteKnight & CENTER)
+	value -= bits.OnesCount64(bbBlackKnight & CENTER)
 
-	value = value - bits.OnesCount64(bbWhiteQueen&CENTER)
-	value = value + bits.OnesCount64(bbBlackQueen&CENTER)
+	value -= bits.OnesCount64(bbWhiteQueen & CENTER)
+	value += bits.OnesCount64(bbBlackQueen & CENTER)
 
-	value = value - bits.OnesCount64(bbWhiteKnight&BASE_LINE)
-	value = value + bits.OnesCount64(bbBlackKnight&BASE_LINE)
-	value = value - bits.OnesCount64(bbWhiteBishop&BASE_LINE)
-	value = value + bits.OnesCount64(bbBlackBishop&BASE_LINE)
+	value -= bits.OnesCount64(bbWhiteKnight&BASE_LINE) * 2
+	value += bits.OnesCount64(bbBlackKnight&BASE_LINE) * 2
+	value -= bits.OnesCount64(bbWhiteBishop&BASE_LINE) * 2
+	value += bits.OnesCount64(bbBlackBishop&BASE_LINE) * 2
 
-	value = value - bits.OnesCount64(bbWhiteQueen&CENTER)
-	value = value + bits.OnesCount64(bbBlackQueen&CENTER)
+	value += bits.OnesCount64(bbWhiteKing&SAFE_KING) * 5
+	value -= bits.OnesCount64(bbBlackKing&SAFE_KING) * 5
 
-	value = value + bits.OnesCount64(bbWhiteKing&SAFE_KING)*5
-	value = value - bits.OnesCount64(bbBlackKing&SAFE_KING)*5
-
-	value = value + bits.OnesCount64(bbWhiteBishop&GOOD_BISHOP)
-	value = value - bits.OnesCount64(bbBlackBishop&GOOD_BISHOP)
+	value += bits.OnesCount64(bbWhiteBishop & GOOD_BISHOP)
+	value -= bits.OnesCount64(bbBlackBishop & GOOD_BISHOP)
 
 	//bbDefendingKing := bbWhiteKing
 	if pos.Turn() == chess.Black {
@@ -93,12 +98,12 @@ func evaluate(pos *chess.Position) int {
 	return value
 }
 
-func negamax(pos *chess.Position, depth int, alpha int, beta int) int {
+func negamax(pos *chess.Position, depth int, alpha int, beta int, quiescence bool) int {
 	outcome := pos.Status()
 	if outcome != chess.NoMethod {
 		switch outcome {
 		case chess.Checkmate:
-			alpha = -20000 - depth
+			alpha = -40000 - depth
 		default:
 			return 0
 		}
@@ -111,10 +116,15 @@ func negamax(pos *chess.Position, depth int, alpha int, beta int) int {
 	var newPos *chess.Position
 
 	children := pos.ValidMoves()
-
 	for _, child := range children {
+		value := 0
 		newPos = pos.Update(child)
-		value := -negamax(newPos, depth-1, -beta, -alpha)
+		if child.HasTag(chess.Capture) && !quiescence {
+			value = -negamax(newPos, depth, -beta, -alpha, true)
+		} else {
+			value = -negamax(newPos, depth-1, -beta, -alpha, quiescence)
+		}
+
 		if value >= beta {
 			return beta
 		}
